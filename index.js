@@ -2,10 +2,29 @@
 require("dotenv").config();
 const AWS = require("aws-sdk");
 const cognito = new AWS.CognitoIdentityServiceProvider();
+const ajvO = require("ajv");
+const ajvRq = new ajvO();
+const schemaAuthRq = require("./schemas/rqAuthSchema.json");
+const validateAuthRq = ajvRq.compile(schemaAuthRq);
 
 module.exports.loginUser = async (event) => {
   try {
     const { email, password } = JSON.parse(event.body);
+    let valid = validateAuthRq({ email, password });
+
+    if (!valid) {
+      return {
+        statusCode: 406,
+        headers: {
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Credentials": true,
+        },
+        body: JSON.stringify({
+          message: "Empty fields are not accepted",
+          details: validateAuthRq.errors[0],
+        }),
+      };
+    }
     const { user_pool_id, client_id } = process.env;
     const params = {
       AuthFlow: "ADMIN_NO_SRP_AUTH",
@@ -46,6 +65,21 @@ module.exports.loginUser = async (event) => {
 module.exports.signupUser = async (event) => {
   try {
     const { email, password } = JSON.parse(event.body);
+    let valid = validateAuthRq({ email, password });
+
+    if (!valid) {
+      return {
+        statusCode: 406,
+        headers: {
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Credentials": true,
+        },
+        body: JSON.stringify({
+          message: "Empty fields are not accepted",
+          details: validateAuthRq.errors[0],
+        }),
+      };
+    }
     const { user_pool_id } = process.env;
     const params = {
       UserPoolId: user_pool_id,
