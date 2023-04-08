@@ -1,0 +1,22 @@
+org: devlovelace
+app: lite-thinking-user
+service: lite-thinking-user
+frameworkVersion: "3"
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  region: us-east-1
+  timeout: 180
+  memorySize: 256
+
+functions:
+  auth:
+    handler: index.auth
+    timeout: 180
+    memorySize: 256
+    events:
+      - http:
+          path: auth
+          method: post
+          cors: true # <-- CORS!
