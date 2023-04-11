@@ -37,11 +37,11 @@ functions:
           method: post
           cors: true
 
-  privateAPI:
-    handler: index.privateAPI
+  logoutUser:
+    handler: index.logoutUser
     events:
       - http:
-          path: user/private
+          path: user/logout
           method: post
           cors: true
           authorizer:

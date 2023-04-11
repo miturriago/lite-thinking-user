@@ -127,15 +127,30 @@ module.exports.signupUser = async (event) => {
   }
 };
 
-module.exports.privateAPI = async (event) => {
-  return {
-    statusCode: 200,
-    headers: {
-      "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Credentials": true,
-    },
-    body: JSON.stringify({
-      message: `Email ${event.requestContext.authorizer.claims.email} has been authorized`,
-    }),
+module.exports.logoutUser = async (event) => {
+  const token = event.headers.Authorization.substring(7);
+  const params = {
+    AccessToken: token,
   };
+
+  try {
+    await cognito.globalSignOut(params).promise();
+    return {
+      statusCode: 200,
+      headers: {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Credentials": true,
+      },
+      body: JSON.stringify({ message: "success" }),
+    };
+  } catch (error) {
+    return {
+      statusCode: 200,
+      headers: {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Credentials": true,
+      },
+      body: JSON.stringify({ message: error }),
+    };
+  }
 };
